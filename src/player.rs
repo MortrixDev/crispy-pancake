@@ -1,18 +1,42 @@
 use crate::Entity;
-use macroquad::math::Vec2;
+use macroquad::prelude::*;
 
 pub struct Player {
-    pos: Vec2,
+    position: Vec2,
+    velocity: Vec2,
+    texture: Texture2D,
 }
+
+impl Player {
+    pub async fn init() -> Player {
+        Player{
+            position: Vec2{x: 100.0, y: 100.0}, 
+            velocity: Vec2{x: 0.0, y: 0.0}, 
+            texture: load_texture("Assets/Free/Main_Characters/Pink Man.png")
+                .await
+                .expect("Failed loading player."),
+        }
+    }
+}
+
 
 impl Entity for Player {
     fn position(&self) -> &Vec2 {
-        &self.pos
+        &self.position
     }
 
-    fn render(&self) {}
+    fn render(&self) {
+        draw_texture(&self.texture, self.position.x, self.position.y, WHITE);
+    }
 
-    fn update(&self, dt: f32) {
-        _ = dt;
+    fn update(&mut self, dt: f32) {
+        if is_key_down(KeyCode::Left) {
+            self.velocity.x = -1.0;
+        }
+        if is_key_down(KeyCode::Right) {
+            self.velocity.x = 1.0;
+        }
+
+        self.position += self.velocity*dt;
     }
 }
