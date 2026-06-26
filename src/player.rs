@@ -33,8 +33,15 @@ impl Entity for Player {
         if is_key_down(KeyCode::Left) {
             self.velocity.x = -1.0;
         }
+        if is_key_released(KeyCode::Left) {
+            self.velocity.x = 0.0;
+        }
+
         if is_key_down(KeyCode::Right) {
-            self.velocity.x = 1.0;
+            self.velocity.y = 1.0;
+        }
+        if is_key_released(KeyCode::Right) {
+            self.velocity.y = 0.0;
         }
 
         self.position += self.velocity*dt;
