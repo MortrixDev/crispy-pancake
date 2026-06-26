@@ -5,11 +5,21 @@ pub struct GameState {
 }
 
 impl GameState {
-    fn render(&self) {
+    pub fn new() -> Self {
+        Self {
+            entities: Vec::new(),
+        }
+    }
+
+    pub fn render(&self) {
         self.entities.iter().for_each(|e| e.render());
     }
 
-    fn update(&mut self, dt: f32) {
+    pub fn update(&mut self, dt: f32) {
         self.entities.iter_mut().for_each(|e| e.update(dt));
+    }
+
+    pub fn add_entity(&mut self, entity: Box<dyn Entity>) {
+        self.entities.push(entity);
     }
 }
