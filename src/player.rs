@@ -1,4 +1,4 @@
-use crate::Entity;
+use crate::{Entity, GameState};
 use macroquad::prelude::*;
 
 pub struct Player {
@@ -9,12 +9,13 @@ pub struct Player {
 
 impl Player {
     pub async fn new() -> Player {
+        let texture = load_texture("assets/Free/Items/Boxes/Box1/Idle.png").await.unwrap();
+        texture.set_filter(FilterMode::Nearest);
+        
         Player {
             position: Vec2 { x: 100.0, y: 100.0 },
             velocity: Vec2 { x: 0.0, y: 0.0 },
-            texture: load_texture("assets/Free/Items/Boxes/Box1/Idle.png")
-                .await
-                .expect("Failed loading player."),
+            texture
         }
     }
 }
@@ -28,7 +29,7 @@ impl Entity for Player {
         draw_texture(&self.texture, self.position.x, self.position.y, WHITE);
     }
 
-    fn update(&mut self, dt: f32) {
+    fn update(&mut self, state: &mut GameState, dt: f32) {
         if is_key_down(KeyCode::Left) {
             self.velocity.x = -100.0;
         }
@@ -45,5 +46,6 @@ impl Entity for Player {
         }    
 
         self.position += self.velocity * dt;
+        state.camera_target = Some(self.position);
     }
 }
