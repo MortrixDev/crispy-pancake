@@ -24,7 +24,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut state: GameState;
-    let mut player = Player::init();
+    let mut player = Player::init().await;
 
     let background = load_texture("assets/Free/Background/Blue.png")
         .await
@@ -50,6 +50,9 @@ async fn main() {
                 ..Default::default()
             },
         );
+
+        player.update(dt);
+        player.render();
 
         next_frame().await
     }
