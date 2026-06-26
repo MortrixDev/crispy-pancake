@@ -27,10 +27,10 @@ async fn main() {
     let mut state = GameState::new();
     state.add_entity(Box::new(Player::new().await));
     state.add_entity(Box::new(MovingPlatform::new(
-        Vec2{x: 200.0, y: 200.0}, 
-        vec![Vec2{x: 100.0, y: 200.0}, Vec2{x: 300.0, y: 200.0}], 
+        Vec2{x: 0.0, y: 0.0}, 
+        vec![Vec2{x: 50.0, y: 0.0}, Vec2{x: -50.0, y: 0.0}], 
         100.0, 
-        load_texture("assets/Free/Other/Confetti.png").await.expect("Failed loading MP."))
+        load_texture("assets/Free/Other/Confetti (16x16).png").await.expect("Failed loading MP."))
     ));
 
     loop {
