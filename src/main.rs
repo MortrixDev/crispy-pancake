@@ -7,6 +7,12 @@ use game::GameState;
 mod entity;
 use entity::Entity;
 
+mod shape;
+use shape::Shape;
+
+mod collider;
+use collider::Collider;
+
 mod entities;
 use entities::player::Player;
 use entities::moving_platform::MovingPlatform;
