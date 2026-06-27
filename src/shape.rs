@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 pub enum Shape {
-    disk(f32),
-    rect(Vec2),
-    polygon(Vec<Vec2>),
+    Disk(f32),
+    Rect(Vec2),
+    Polygon(Vec<Vec2>),
 }

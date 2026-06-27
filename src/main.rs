@@ -11,7 +11,7 @@ mod shape;
 use shape::Shape;
 
 mod collider;
-use collider::Collider;
+use collider::{Collider, Colliders};
 
 mod entities;
 use entities::player::Player;
