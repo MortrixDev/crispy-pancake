@@ -13,6 +13,18 @@ use shape::Shape;
 mod collider;
 use collider::{Collider, Colliders};
 
+mod assets;
+use assets::Assets;
+
+mod animation;
+use animation::Animation;
+
+mod tile;
+use tile::{Tile, AnimatedTile};
+
+mod level;
+use level::Level;
+
 mod entities;
 use entities::player::Player;
 use entities::moving_platform::MovingPlatform;
@@ -31,13 +43,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut state = GameState::new();
-    state.add_entity(Box::new(Player::new().await));
-    state.add_entity(Box::new(MovingPlatform::new(
-        Vec2{x: 0.0, y: 0.0}, 
-        vec![Vec2{x: 50.0, y: 0.0}, Vec2{x: -50.0, y: 0.0}], 
-        100.0, 
-        load_texture("assets/Free/Other/Confetti (16x16).png").await.expect("Failed loading MP."))
-    ));
+    level::test_level().load(&mut state);
 
     loop {
         // Delta time
