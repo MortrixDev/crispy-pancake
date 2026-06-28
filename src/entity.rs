@@ -5,6 +5,6 @@ pub trait Entity {
     fn colliders(&self) -> Option<&Colliders> {
         None
     }
-    fn render(&self);
+    fn render(&self, state: &GameState);
     fn update(&mut self, state: &mut GameState, dt: f32);
 }

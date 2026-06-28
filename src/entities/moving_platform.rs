@@ -26,7 +26,7 @@ impl Entity for MovingPlatform {
         &self.position
     }
 
-    fn render(&self) {
+    fn render(&self, _state: &GameState) {
         draw_texture(&self.texture, self.position.x, self.position.y, WHITE);
     }
 

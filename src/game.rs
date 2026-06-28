@@ -1,29 +1,34 @@
+use crate::tile::TILE_SIZE;
 use crate::{AnimatedTile, Assets, Entity, Player, Tile};
 use macroquad::prelude::*;
 
-const TILE_SIZE: f32 = 16.0;
-const TILES_WIDE: usize = 24;
+const NATIVE_W: f32 = TILE_SIZE * 18.;
+const NATIVE_H: f32 = TILE_SIZE * 12.;
 
 pub struct GameState {
     pub assets: Assets,
-    pub player: Player,
+    pub player: Option<Player>,
     entities: Vec<Box<dyn Entity>>,
     pub tiles: Box<[Tile]>,
     pub level_width: usize,
     pub animated: Vec<AnimatedTile>,
-    camera: Camera2D,
+    render_target: RenderTarget,
+    camera_target: Vec2,
 }
 
 impl GameState {
     pub fn new() -> Self {
+        let rt = render_target(NATIVE_W as u32, NATIVE_H as u32);
+        rt.texture.set_filter(FilterMode::Nearest);
         Self {
             assets: Assets::new(),
-            player: Player::new(),
+            player: Some(Player::new()),
             entities: Vec::new(),
             tiles: Vec::new().into_boxed_slice(),
-            level_width: TILES_WIDE,
+            level_width: 0,
             animated: Vec::new(),
-            camera: Camera2D::default(),
+            render_target: rt,
+            camera_target: vec2(NATIVE_W * 0.5, NATIVE_H * 0.5),
         }
     }
 
@@ -32,7 +37,14 @@ impl GameState {
     }
 
     pub fn render(&self) {
-        set_camera(&self.camera);
+        set_camera(&Camera2D {
+            zoom: vec2(2.0 / NATIVE_W, 2.0 / NATIVE_H),
+            target: self.camera_target,
+            render_target: Some(self.render_target.clone()),
+            ..Default::default()
+        });
+
+        clear_background(SKYBLUE);
 
         for (i, tile) in self.tiles.iter().enumerate() {
             if matches!(tile, Tile::None) {
@@ -43,34 +55,52 @@ impl GameState {
             let uv = tile.uv();
             draw_texture_ex(
                 &self.assets.atlas,
-                x, y, WHITE,
+                x,
+                y,
+                WHITE,
                 DrawTextureParams {
-                    source: Some(Rect::new(uv.x + 0.5, uv.y + 0.5, TILE_SIZE - 1.0, TILE_SIZE - 1.0)),
+                    source: Some(Rect::new(uv.x, uv.y, TILE_SIZE, TILE_SIZE)),
                     dest_size: Some(vec2(TILE_SIZE, TILE_SIZE)),
                     ..Default::default()
                 },
             );
         }
 
-        self.player.render();
-        self.entities.iter().for_each(|e| e.render());
+        if let Some(player) = &self.player {
+            player.render(self);
+        }
+        self.entities.iter().for_each(|e| e.render(self));
 
+        // Scale to fill screen width, letterbox top/bottom with black.
         set_default_camera();
+        clear_background(BLACK);
+
+        let scale = screen_width() / NATIVE_W;
+        let y = (screen_height() - NATIVE_H * scale) * 0.5;
+        draw_texture_ex(
+            &self.render_target.texture,
+            0.0,
+            y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(screen_width(), NATIVE_H * scale)),
+                ..Default::default()
+            },
+        );
     }
 
     pub fn update(&mut self, dt: f32) {
-        self.player.update(dt);
+        let mut player = self.player.take().unwrap();
+        player.update(self, dt);
+        self.player = Some(player);
 
         let mut entities = std::mem::take(&mut self.entities);
         entities.iter_mut().for_each(|e| e.update(self, dt));
         self.entities = entities;
 
-        let world_width = TILES_WIDE as f32 * TILE_SIZE;
-        let world_height = world_width * screen_height() / screen_width();
-        self.camera = Camera2D {
-            zoom: vec2(2.0 / world_width, -2.0 / world_height),
-            target: self.player.position,
-            ..Default::default()
-        };
+        self.camera_target = self
+            .player
+            .as_ref()
+            .map_or(vec2(NATIVE_W * 0.5, NATIVE_H * 0.5), |p| p.position);
     }
 }

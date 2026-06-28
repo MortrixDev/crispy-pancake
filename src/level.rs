@@ -15,7 +15,7 @@ impl Level {
         state.tiles = self.tiles.clone();
         state.level_width = self.width;
         state.animated = self.animated_tiles.clone();
-        state.player.position = self.player_spawn;
+        state.player.as_mut().unwrap().position = self.player_spawn;
     }
 }
 
